@@ -1,8 +1,4 @@
-const rootPath = 'http://localhost:9090'
-
-const errHandler = (e) => {
-  console.error(e)
-}
+const rootPath = 'http://192.168.1.169:9090'
 
 const xhr = ({ url, body = null, method = 'get' }) => {
   const defer = $.Deferred()
@@ -18,14 +14,17 @@ const xhr = ({ url, body = null, method = 'get' }) => {
   })
   .done((result) => {
     if (!result) {
-      errHandler('no result')
+      console.error('no result')
     } else if (result.Code !== 0) {
-      errHandler(result.Msg)
+      console.error(result.Msg)
     } else {
       defer.resolve(result.Data)
     }
   })
-  .fail(errHandler)
+  .fail((e) => {
+    console.error(e)
+    defer.reject(e)
+  })
 
   return defer.promise()
 }

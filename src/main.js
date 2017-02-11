@@ -5,6 +5,7 @@ import 'element-ui/lib/theme-default/index.css'
 import App from './App.vue'
 import Search from './components/Search.vue'
 import Add from './components/Add.vue'
+import UserTrajectory from './components/UserTrajectory.vue'
 
 Vue.use(VueRouter)
 Vue.use(ElementUI)
@@ -21,6 +22,10 @@ const router = new VueRouter({
     {
       path: '/anyConfig/add',
       component: Add
+    },
+    {
+      path: '/user/trajectory',
+      component: UserTrajectory
     }
   ]
 })

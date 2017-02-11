@@ -1,28 +1,30 @@
 <template>
-  <nav class="navbar navbar-inverse">
-    <div class="container">
-      <div class="navbar-header">
-        <button
-          class="navbar-toggle collapsed"
-          type='button'
-          data-toggle="collapse"
-          data-target=".navbar-collapse">
-          <span class="sr-only">Click to view</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <router-link class="navbar-brand" to="/">考拉日志分析系统</router-link>
-      </div>
-      <!--
-      <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav">
-          <li>
-            <router-link class="active" to="/anyConfig/add">New</router-link>
-          </li>
-        </ul>
-      </div>
-      -->
-    </div>
-  </nav> 
+  <el-menu theme="light" default-active="/" class="el-menu-demo logo" mode="horizontal" @select="handleSelect" router=true>
+    <el-menu-item index="/">日志分析系统</el-menu-item>
+    <el-menu-item index="/user/trajectory">用户轨迹</el-menu-item>
+    <el-menu-item index="/anyConfig/add">报警配置</el-menu-item>
+  </el-menu>
 </template>
+
+
+<script>
+  export default {
+    methods: {
+      handleSelect(key, keyPath) {
+        console.log(key, keyPath);
+      }
+    }
+  }
+</script>
+
+<style>
+  .el-menu{
+    margin-bottom: 30px;
+  }
+  .logo{
+    padding-left: 280px;
+    background-image: url(../assets/logo.png);
+    background-repeat: no-repeat;
+    background-size: 250px;
+  }
+</style>
