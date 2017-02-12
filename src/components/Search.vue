@@ -23,7 +23,7 @@
        :data="appLogList"
        border
        style="width: 100%">
-      <el-table-column
+      <el-table-column :formatter="timeFormatter"
        prop="Time"
        label="时间"
        width="170">
@@ -38,7 +38,7 @@
        label="App"
        width="120">
       </el-table-column>
-      <el-table-column show-overflow-tooltip=true
+      <el-table-column :formatter="logFormatter"
         prop="Log"
         label="日志">
       </el-table-column>
@@ -188,36 +188,38 @@ export default {
     }
   },
   methods: {
+    timeFormatter(row, column) {
+      return dateUtil.format(row.Time / 1000000)
+    },
+    logFormatter(row, column) {
+      var arr = row.Log.split('\n')
+      var text = arr[0]
+      var _this = this
+      _.each(arr, function (list, index) {
+        if (list.indexOf(_this.query)>=0) {
+          text = list
+          return
+        }
+      });
+      return text
+    },
     handleIconClick(ev) {
-      this.loading = true;
-      console.log(this.times, this.query);
       const param = {
-        startTime: new Date(this.times[0]).getTime() * 1000000,
-        endTime: new Date(this.times[1]).getTime() * 1000000,
-        query: this.query,
         page: 0,
         limit: DEFAULT_LIMIT
       }
-      appLogService.list(param).then((data) => {
-        console.log(data.Total, data.List)
-        this.appLogTotal = data.Total
-        this.appLogList = _.map(data.List, (item) => {
-          item.Time = dateUtil.format(item.Time / 1000000)
-          return item
-        })
-        this.loading = false;
-      }).catch ((error) => {
-        this.loading = false;
-        if (error.statusText === 'error') {
-          this.$message('网络错误，请稍候再试');
-        }
+      var _this = this
+      this.httpLogs(param, function (data) {
+        _this.appLogTotal = data.Total
+        _this.appLogList = data.List
       })
     },
     queryDetail(rowData) {
       this.dialogTableVisible = true
-//      rowData.Log = rowData.Log.replace(/\n/ig,"<br/>")
-//      rowData.Log = rowData.Log.repla ce(this.query,"<span class='red'>" +this.query+ "</span>")
-      this.detail = rowData
+      var detail = _.clone(rowData)
+      detail.Log = detail.Log.replace(/\n/ig,"<br/>")
+      detail.Log = detail.Log.replace(this.query,"<span class='red'>" +this.query+ "</span>")
+      this.detail = detail
       this.detail.prevDetail = []
       this.detail.nextDetail = []
     },
@@ -245,28 +247,33 @@ export default {
       this.context(param)
     },
     loadMore: function() {
-      console.log(this.appLogList.length, this.appLogTotal)
       if (this.appLogList.length >= this.appLogTotal) {
         return
       }
       this.busy = true;
 
       const param = {
-        startTime: new Date(this.times[0]).getTime() * 1000000,
-        endTime: new Date(this.times[1]).getTime() * 1000000,
-        query: this.query,
         page: parseInt(this.appLogList.length / DEFAULT_LIMIT),
         limit: DEFAULT_LIMIT
       }
+      var _this = this
+      this.httpLogs(param, function (data) {
+        _this.appLogList = _this.appLogList.concat(data.List)
+      })
+    },
+    httpLogs (param, suc) {
+      this.loading = true;
+      param.startTime = new Date(this.times[0]).getTime() * 1000000
+      param.endTime = new Date(this.times[1]).getTime() * 1000000
+      param.query = this.query
       appLogService.list(param).then((data) => {
-        console.log(data.Total, data.List)
-        const newList = _.map(data.List, (item) => {
-          item.Time = dateUtil.format(item.Time / 1000000)
-          return item
-        })
-        this.appLogList = this.appLogList.concat(newList)
+        this.loading = false
+        suc(data)
       }).catch ((error) => {
-        console.log('error=====' + error)
+        this.loading = false
+        if (error.statusText === 'error') {
+          this.$message('网络错误，请稍候再试');
+        }
       })
     },
     context: function (param) {

@@ -13,6 +13,11 @@ class AppLogService {
     const url = `/applog/neighbor?id=${id}&direction=${direction}&page=${page}&limit=${limit}`
     return xhr({ url })
   }
+  userHa ({ ud = '', page = 0 } = {}) {
+    const limit = 10
+    const url = `/haproxylog?ud=${ud}&page=${page}&limit=${limit}`
+    return xhr({ url })
+  }
 }
 
 export default new AppLogService()
